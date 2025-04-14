@@ -1,0 +1,5 @@
+export enum ConversationState {
+  NONE = 'NONE',
+  AGENDANDO_DATA = 'AGENDANDO_DATA',
+  AGENDANDO_HORARIO = 'AGENDANDO_HORARIO',
+}
