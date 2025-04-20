@@ -5,6 +5,7 @@ import { SessionManager } from '../session.manager';
 import { handleAgendamentoFlow } from './agendamento.flow';
 import { handleConsultaFlow } from './consulta.flow';
 import { handleFeedbackFlow } from './feedback.flow';
+import { handleHorarioFlow } from './horario.flow';
 
 export async function handleFlow(
   client: Whatsapp,
@@ -29,6 +30,10 @@ export async function handleFlow(
   }
   // Verifica comandos iniciais
   switch (selectedRowId) {
+    case 'horarios':
+      sessionManager.setState(from, ConversationState.HORARIO_FUNCIONAMENTO);
+      return handleHorarioFlow(client, sessionManager, from, message, selectedRowId);
+    
     case 'agendar':
     case 'agendar horário':
       sessionManager.setState(from, ConversationState.AGENDAMENTO_ESCOLHER_SERVICO);
