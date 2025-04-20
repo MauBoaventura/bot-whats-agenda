@@ -18,7 +18,7 @@ export async function handleFlow(
   
   // Verifica se está em algum flow específico
   if (currentState.toString().startsWith('AGENDAMENTO_')) {
-    return handleAgendamentoFlow(client, sessionManager, from, message);
+    return handleAgendamentoFlow(client, sessionManager, from, message, selectedRowId);
   }
   
   if (currentState.toString().startsWith('CONSULTA_')) {
@@ -37,12 +37,12 @@ export async function handleFlow(
     case 'agendar':
     case 'agendar horário':
       sessionManager.setState(from, ConversationState.AGENDAMENTO_ESCOLHER_SERVICO);
-      return handleAgendamentoFlow(client, sessionManager, from, message);
+      return handleAgendamentoFlow(client, sessionManager, from, message, selectedRowId);
     
     case 'meus agendamentos':
     case 'meus-agendamentos':
       sessionManager.setState(from, ConversationState.CONSULTA_AGENDAMENTOS);
-      return handleConsultaFlow(client, sessionManager, from, message);
+      return handleConsultaFlow(client, sessionManager, from, message,);
     
     case 'feedback':
       sessionManager.setState(from, ConversationState.FEEDBACK_MENU);
