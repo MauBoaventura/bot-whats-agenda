@@ -6,11 +6,6 @@ import { SendWhatsappDto } from './dto/send-whatsapp.dto';
 @Controller('whatsapp')
 export class WhatsappController {
   constructor(private readonly whatsappService: WhatsappService) {}
-
-  @Post('send-to-me')
-  sendToMyself(@Body() body: SendWhatsappDto) {
-    return this.whatsappService.sendMessageToMe(body.message);
-  }
   @Get('send-to-me')
   teste() {
     return 'Funcionando!!';

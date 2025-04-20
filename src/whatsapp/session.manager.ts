@@ -1,20 +1,33 @@
-import { UserSession } from './flows/user-session.interface';
-import { ConversationState } from './flows/conversation-state.enum';
+import { ConversationState } from "./flows/conversation-state.enum";
 
+// session.manager.ts
 export class SessionManager {
-  private sessions = new Map<string, UserSession>();
+  private sessions: Map<string, { state: ConversationState; data: any }> = new Map();
 
-  getSession(user: string): UserSession {
-    return (
-      this.sessions.get(user) ?? { state: ConversationState.NONE, data: {} }
-    );
+  getState(userId: string): ConversationState {
+    return this.sessions.get(userId)?.state || ConversationState.NONE;
   }
 
-  setSession(user: string, session: UserSession): void {
-    this.sessions.set(user, session);
+  setState(userId: string, state: ConversationState): void {
+    const currentSession = this.sessions.get(userId) || { data: {} };
+    this.sessions.set(userId, { ...currentSession, state });
   }
 
-  clearSession(user: string): void {
-    this.sessions.delete(user);
+  getData(userId: string): any {
+    return this.sessions.get(userId)?.data || {};
+  }
+
+  setData(userId: string, data: any): void {
+    const currentState = this.getState(userId);
+    this.sessions.set(userId, { state: currentState, data });
+  }
+
+  resetState(userId: string): void {
+    this.sessions.delete(userId);
+  }
+
+  updateData(userId: string, newData: any): void {
+    const currentData = this.getData(userId);
+    this.setData(userId, { ...currentData, ...newData });
   }
 }

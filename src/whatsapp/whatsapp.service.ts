@@ -1,10 +1,30 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Injectable, OnModuleInit } from '@nestjs/common';
+
+// Extending the Message type to include listResponse
+declare module '@wppconnect-team/wppconnect' {
+  interface Message {
+    listResponse?: ListResponse;
+  }
+  interface ListResponse {
+    $$unknownFieldCount: number
+    title: string
+    listType: number
+    singleSelectReply: SingleSelectReply
+    description: string
+  }
+  
+  interface SingleSelectReply {
+    $$unknownFieldCount: number
+    selectedRowId: string
+  }
+}
 import { SocketState, Whatsapp, create } from '@wppconnect-team/wppconnect';
 import { SessionManager } from './session.manager';
 import { ConversationState } from './flows/conversation-state.enum';
 import { handleAgendamentoFlow } from './flows/agendamento.flow';
 import axios from 'axios';
+import { handleFlow } from './flows';
 
 @Injectable()
 export class WhatsappService implements OnModuleInit {
@@ -12,62 +32,38 @@ export class WhatsappService implements OnModuleInit {
   private sessionManager = new SessionManager();
 
   async onModuleInit() {
-    this.client = await create({
-      session: 'meu-bot',
-      catchQR: (base64Qr, asciiQR) => console.log(asciiQR),
-    });
-
-    this.initializeListeners();
+    try {
+      this.client = await create({
+        session: 'meu-bot',
+        catchQR: (base64Qr, asciiQR) => console.log(asciiQR),
+      });
+      this.initializeListeners();
+    } catch (error) {
+      console.error('Erro ao inicializar o cliente WhatsApp:', error);
+    }
   }
 
   private initializeListeners() {
-    this.client.onAnyMessage(async (message) => {
+    this.client.onMessage(async (message) => {
       const { from, body, isGroupMsg } = message;
-      if (!body || isGroupMsg || from !== '15550714762@c.us') return;
+      const selectedRowId = message.listResponse?.singleSelectReply.selectedRowId || ''; // Adicionando selectedRowId aqui
+      if (!body || isGroupMsg) return;
+
       const trimmed = body.trim();
 
-      const handled = await handleAgendamentoFlow(
+      // Primeiro tenta tratar com os flows específicos
+      const handled = await handleFlow(
         this.client,
         this.sessionManager,
         from,
         trimmed,
+        selectedRowId,
       );
       if (handled) return;
 
-      switch (trimmed) {
-        case '1':
-          this.sessionManager.setSession(from, {
-            state: ConversationState.AGENDANDO_DATA,
-            data: {},
-          });
-          await this.client.sendText(
-            from,
-            '📅 Qual a data desejada para o agendamento?',
-          );
-          break;
-        case '2':
-          await this.client.sendText(
-            from,
-            '📖 Agenda:\n- Segunda: 10h\n- Quarta: 14h',
-          );
-          break;
-        case '3':
-          await this.client.sendText(from, '🛠 Encaminhando para o suporte...');
-          break;
-        case '4':
-          await this.client.sendText(
-            from,
-            'ℹ️ Atendimento das 8h às 18h, de segunda a sexta.',
-          );
-          break;
-        default:
-          await this.client.sendText(
-            from,
-            `Olá! Escolha uma opção:\n1 - Agendar consulta\n2 - Ver agenda\n3 - Suporte\n4 - Informações`,
-          );
-      }
+      // Se não foi tratado por nenhum flow, trata como mensagem padrão
+      await this.sendWelcomeMessage(from);
     });
-
     this.client.onStateChange((state) => {
       if (state === SocketState.CONFLICT) {
         this.client.useHere().catch(console.error);
@@ -75,31 +71,43 @@ export class WhatsappService implements OnModuleInit {
     });
   }
 
-  async sendMessageToMe(message: string): Promise<{ [key: string]: any }> {
-    const apiUrl = 'https://graph.facebook.com/v22.0';
-    const phoneNumberId = '113262701745938'; // Substitua pelo ID do número de telefone
-    const token =
-      'EAAIXmOZAPwwIBO42dKQYv32U3sZAeMYpM7WUnZCcr5UiRTw4PeybWjYGU68SPnaDGDVL41xNMWBtdTtfqcbvVVhQDaIxuKNwZCECZBBZAADGA7wcAaCviKarnH5COaCD0G2DIhZC3WkZB1S0vPmTNXDnwBwE9lZANURLhnQAeTF2PZA82Nhqh1YjGLViMpRZCMAvERloVbUxhchGR0937n9jf6BNSsLoU8ZD';
-    const recipientNumber = '5586995441013'; // Substitua pelo número de telefone do destinatário
-
-    const url = `${apiUrl}/${phoneNumberId}/messages`;
-
-    const payload = {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
-      to: recipientNumber,
-      type: 'text',
-      text: {
-        body: message,
-      },
-    };
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-
-    const response = await axios.post(url, payload, { headers });
-    return response.data as { [key: string]: any };
+  public async sendWelcomeMessage(from: string) {
+    await this.client.sendListMessage(from, {
+      title: 'Barbearia XXX',
+      description: 'Olá! Bem-vindo ao nosso atendimento. 😊',
+      sections: [
+        {
+          title: '',
+          rows: [
+            {
+              rowId: 'horarios',
+              title: 'Horario de funcionamento',
+              description: '',
+            },
+            {
+              rowId: 'agendar',
+              title: 'Agendar horário',
+              description: 'Agende seu horário com facilidade!',
+            },
+            {
+              rowId: 'meus-agendamentos',
+              title: 'Meus agendamentos',
+              description: '',
+            },
+            {
+              rowId: 'feedback',
+              title: 'Feedback',
+              description: '',
+            },
+            {
+              rowId: 'hoje',
+              title: 'Agenda do dia',
+              description: 'Veja os horários disponíveis para hoje!',
+            },
+          ],
+        },
+      ],
+      buttonText: 'Selecione uma opção',
+    });
   }
 }
