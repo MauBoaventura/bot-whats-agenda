@@ -7,29 +7,33 @@ declare module '@wppconnect-team/wppconnect' {
     listResponse?: ListResponse;
   }
   interface ListResponse {
-    $$unknownFieldCount: number
-    title: string
-    listType: number
-    singleSelectReply: SingleSelectReply
-    description: string
+    $$unknownFieldCount: number;
+    title: string;
+    listType: number;
+    singleSelectReply: SingleSelectReply;
+    description: string;
   }
-  
+
   interface SingleSelectReply {
-    $$unknownFieldCount: number
-    selectedRowId: string
+    $$unknownFieldCount: number;
+    selectedRowId: string;
   }
 }
 import { SocketState, Whatsapp, create } from '@wppconnect-team/wppconnect';
 import { SessionManager } from './session.manager';
-import { ConversationState } from './flows/conversation-state.enum';
-import { handleAgendamentoFlow } from './flows/agendamento.flow';
-import axios from 'axios';
-import { handleFlow } from './flows';
+
+import { FlowFactory } from './flows';
+import { MenuService } from './flows/menu.service';
 
 @Injectable()
 export class WhatsappService implements OnModuleInit {
   private client: Whatsapp;
   private sessionManager = new SessionManager();
+
+  constructor(
+    private readonly flowFactory: FlowFactory,
+    private readonly menuService: MenuService,
+  ) {}
 
   async onModuleInit() {
     try {
@@ -46,13 +50,14 @@ export class WhatsappService implements OnModuleInit {
   private initializeListeners() {
     this.client.onMessage(async (message) => {
       const { from, body, isGroupMsg } = message;
-      const selectedRowId = message.listResponse?.singleSelectReply.selectedRowId || ''; // Adicionando selectedRowId aqui
+      const selectedRowId =
+        message.listResponse?.singleSelectReply.selectedRowId || ''; // Adicionando selectedRowId aqui
       if (!body || isGroupMsg) return;
 
       const trimmed = body.trim();
 
       // Primeiro tenta tratar com os flows específicos
-      const handled = await handleFlow(
+      const handled = await this.flowFactory.handleFlow(
         this.client,
         this.sessionManager,
         from,
@@ -72,42 +77,6 @@ export class WhatsappService implements OnModuleInit {
   }
 
   public async sendWelcomeMessage(from: string) {
-    await this.client.sendListMessage(from, {
-      title: 'Barbearia XXX',
-      description: 'Olá! Bem-vindo ao nosso atendimento. 😊',
-      sections: [
-        {
-          title: '',
-          rows: [
-            {
-              rowId: 'horarios',
-              title: 'Horario de funcionamento',
-              description: '',
-            },
-            {
-              rowId: 'agendar',
-              title: 'Agendar horário',
-              description: 'Agende seu horário com facilidade!',
-            },
-            {
-              rowId: 'meus-agendamentos',
-              title: 'Meus agendamentos',
-              description: '',
-            },
-            {
-              rowId: 'feedback',
-              title: 'Feedback',
-              description: '',
-            },
-            {
-              rowId: 'hoje',
-              title: 'Agenda do dia',
-              description: 'Veja os horários disponíveis para hoje!',
-            },
-          ],
-        },
-      ],
-      buttonText: 'Selecione uma opção',
-    });
+    await this.menuService.sendWelcomeMenu(this.client, from);
   }
 }

@@ -1,8 +1,9 @@
-import { ConversationState } from "./flows/conversation-state.enum";
+import { ConversationState } from './flows/conversation-state.enum';
 
 // session.manager.ts
 export class SessionManager {
-  private sessions: Map<string, { state: ConversationState; data: any }> = new Map();
+  private sessions: Map<string, { state: ConversationState; data: any }> =
+    new Map();
 
   getState(userId: string): ConversationState {
     return this.sessions.get(userId)?.state || ConversationState.NONE;
