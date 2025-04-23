@@ -9,6 +9,12 @@ import { Feedback } from 'src/feedback/entities/feedback.entity';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
+        console.log('Database connection settings:');
+        console.log('Host:', config.get<string>('DB_HOST'));
+        console.log('Port:', config.get<number>('DB_PORT'));
+        console.log('Username:', config.get<string>('DB_USER'));
+        console.log('Password:', config.get<string>('DB_PASSWORD'));
+        console.log('Database:', config.get<string>('DB_NAME'));
         return {
           type: 'mysql',
           host: config.get<string>('DB_HOST'),

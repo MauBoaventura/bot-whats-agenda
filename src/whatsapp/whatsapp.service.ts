@@ -29,6 +29,7 @@ import { MenuService } from './flows/menu.service';
 export class WhatsappService implements OnModuleInit {
   private client: Whatsapp;
   private sessionManager = new SessionManager();
+  private qrCodeBase64: string | null = null;
 
   constructor(
     private readonly flowFactory: FlowFactory,
@@ -36,10 +37,16 @@ export class WhatsappService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    this.initSession();
+  }
+
+  async initSession() {
     try {
       this.client = await create({
         session: 'meu-bot',
-        catchQR: (base64Qr, asciiQR) => console.log(asciiQR),
+        catchQR: (base64Qrimg, asciiQR) => {
+          this.qrCodeBase64 = base64Qrimg;
+          console.log(asciiQR)},
       });
       this.initializeListeners();
     } catch (error) {
@@ -78,5 +85,35 @@ export class WhatsappService implements OnModuleInit {
 
   public async sendWelcomeMessage(from: string) {
     await this.menuService.sendWelcomeMenu(this.client, from);
+  }
+
+  public getQrCodeBase64(): string | null {
+    return this.qrCodeBase64;
+  }
+
+  public getQrCodeImageBuffer(): Buffer | null {
+    console.log('qrCodeBase64', this.qrCodeBase64);
+    if (!this.qrCodeBase64) return null;
+    return Buffer.from(this.qrCodeBase64.replace(/^data:image\/png;base64,/, ''), 'base64');
+  }
+
+  public async logout() {
+    try {
+      await this.client.logout();
+      console.log('Deslogado com sucesso');
+    } catch (error) {
+      console.error('Erro ao deslogar:', error);
+    }
+  }
+
+
+  public async getStatus() {
+    try {
+      const status = await this.client.getConnectionState();
+      return status;
+    } catch (error) {
+      console.error('Erro ao obter status:', error);
+      throw error;
+    }
   }
 }
