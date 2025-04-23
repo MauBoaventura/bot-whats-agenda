@@ -248,6 +248,8 @@ export class FeedbackFlow {
     mensagem += `Sua opinião é muito importante para nós!`;
 
     await client.sendText(from, mensagem);
+    await this.menuService.sendWelcomeMenu(client, from);
+
     sessionManager.resetState(from);
   }
 }

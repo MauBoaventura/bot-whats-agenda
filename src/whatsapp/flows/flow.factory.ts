@@ -58,7 +58,7 @@ export class FlowFactory {
     }
 
     // Verifica comandos iniciais
-    switch (selectedRowId) {
+    switch (selectedRowId || message.toLowerCase()) {
       case 'horarios':
         sessionManager.setState(from, ConversationState.HORARIO_FUNCIONAMENTO);
         return this.horarioFlow.handleHorarioFlow(
