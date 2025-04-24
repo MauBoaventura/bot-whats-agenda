@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
+import { ServicosModule } from './servicos/servicos.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     DatabaseModule,
     WhatsappModule,
+    ServicosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

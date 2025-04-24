@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Agendamento } from 'src/agendamento/entities/agendamento.entity';
-import { Feedback } from 'src/feedback/entities/feedback.entity';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -16,7 +15,7 @@ import { Feedback } from 'src/feedback/entities/feedback.entity';
           username: config.get<string>('DB_USER'),
           password: config.get<string>('DB_PASSWORD'),
           database: config.get<string>('DB_NAME'),
-          entities: [Agendamento, Feedback],
+          entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
           synchronize: true,
         };
       },

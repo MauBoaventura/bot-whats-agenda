@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Whatsapp } from '@wppconnect-team/wppconnect';
 import { SessionManager } from '../session.manager';
 import { ConversationState } from './conversation-state.enum';
-import { AgendamentoService } from 'src/agendamento/agendamento.service';
+import { AgendamentoService } from '../../agendamento/agendamento.service';
 import { format } from 'date-fns';
 import { se, th } from 'date-fns/locale';
 import { WhatsappService } from '../whatsapp.service';

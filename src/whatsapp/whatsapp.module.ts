@@ -8,7 +8,7 @@ import {
   FlowFactory,
 } from './flows';
 import { HorarioFlow } from './flows/horario.flow';
-import { AgendamentoService } from 'src/agendamento/agendamento.service';
+import { AgendamentoService } from '../agendamento/agendamento.service';
 import { FeedbackService } from '../feedback/feedback.service';
 import { MenuService } from './flows/menu.service';
 

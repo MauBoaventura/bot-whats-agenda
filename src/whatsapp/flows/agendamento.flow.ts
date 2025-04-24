@@ -5,7 +5,7 @@ import { SessionManager } from '../session.manager';
 import { ConversationState } from './conversation-state.enum';
 import { format, addDays, isAfter, isBefore, parseISO, set } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { AgendamentoService } from 'src/agendamento/agendamento.service';
+import { AgendamentoService } from '../../agendamento/agendamento.service';
 import { MenuService } from './menu.service';
 
 @Injectable()
