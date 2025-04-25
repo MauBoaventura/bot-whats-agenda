@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   ParseIntPipe,
+  Put,
 } from '@nestjs/common';
 import { ServicosService } from './servicos.service';
 import { Servico } from './entities/servico.entity';
@@ -27,5 +28,18 @@ export class ServicosController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.servicosService.remove(id);
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Servico> {
+    return this.servicosService.findOne(id);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: Partial<Servico>,
+  ) {
+    return this.servicosService.update(id, body);
   }
 }

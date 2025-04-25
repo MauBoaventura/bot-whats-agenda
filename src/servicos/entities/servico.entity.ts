@@ -7,7 +7,7 @@ import {
   
   @Entity('servicos')
   export class Servico {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('increment', { type: 'bigint', unsigned: true })
     id: number;
   
     @Column()
