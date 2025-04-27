@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { ServicosModule } from './servicos/servicos.module';
 import { ClientesModule } from './clientes/clientes.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ClientesModule } from './clientes/clientes.module';
     WhatsappModule,
     ServicosModule,
     ClientesModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -229,7 +229,7 @@ export class FeedbackFlow {
     comentario: string,
   ) {
     // Salva o feedback no banco de dados
-    await this.feedbackService.registrarFeedback({
+    await this.feedbackService.create({
       clienteTelefone: from,
       nota,
       comentario,
