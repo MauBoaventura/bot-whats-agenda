@@ -14,6 +14,15 @@ async function bootstrap() {
   app.enableCors({
     origin: '*', // ou especifique os domínios
   });
+
+  const isDev = process.env.NODE_ENV === 'development';
+
+  if (isDev) {
+    const { runSeeds } = await import('./seed');
+    console.log('Rodando seeds automaticamente...');
+    await runSeeds();
+  }
+  
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap().catch((err) => {

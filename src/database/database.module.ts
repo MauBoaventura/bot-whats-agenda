@@ -17,6 +17,7 @@ import { join } from 'path';
           database: config.get<string>('DB_NAME'),
           entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
           synchronize: true,
+          dropSchema: process.env.NODE_ENV === 'development',
         };
       },
     }),
