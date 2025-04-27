@@ -32,4 +32,19 @@ export class AgendamentoService {
   async cancelarAgendamento(id: string): Promise<void> {
     await this.agendamentoRepo.update(id, { status: 'cancelado' });
   }
+  findAll(): Promise<Agendamento[]> {
+    throw new Error('Method not implemented.');
+  }
+  create(body: Partial<Agendamento>) {
+    throw new Error('Method not implemented.');
+  }
+  remove(id: number) {
+    throw new Error('Method not implemented.');
+  }
+  findOne(id: number): Promise<Agendamento> {
+    throw new Error('Method not implemented.');
+  }
+  update(id: number, body: Partial<Agendamento>) {
+    throw new Error('Method not implemented.');
+  }
 }

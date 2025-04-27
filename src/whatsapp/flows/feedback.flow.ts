@@ -187,7 +187,7 @@ export class FeedbackFlow {
   ) {
     const feedbackData = sessionManager.getData(from);
     let comentario = '';
-    console.log('Feedback Data:', feedbackData);
+
     if (
       selectedRowId == 'sim' ||
       message.toLowerCase() === 'sim' ||
@@ -228,28 +228,38 @@ export class FeedbackFlow {
     nota: number,
     comentario: string,
   ) {
-    // Salva o feedback no banco de dados
-    await this.feedbackService.create({
-      clienteTelefone: from,
-      nota,
-      comentario,
-      data: new Date(),
-    });
+    try {
+      // Salva o feedback no banco de dados
+      await this.feedbackService.create({
+        clienteTelefone: from,
+        nota,
+        comentario,
+        data: new Date(),
+      });
 
-    const estrelas = '⭐️'.repeat(nota);
-    let mensagem =
-      `Obrigado pelo seu feedback! ${estrelas}\n\n` +
-      `Avaliação: ${nota} estrela${nota !== 1 ? 's' : ''}\n`;
+      const estrelas = '⭐️'.repeat(nota);
+      let mensagem =
+        `Obrigado pelo seu feedback! ${estrelas}\n\n` +
+        `Avaliação: ${nota} estrela${nota !== 1 ? 's' : ''}\n`;
 
-    if (comentario) {
-      mensagem += `Seu comentário: "${comentario}"\n\n`;
+      if (comentario) {
+        mensagem += `Seu comentário: "${comentario}"\n\n`;
+      }
+
+      mensagem += `Sua opinião é muito importante para nós!`;
+
+      await client.sendText(from, mensagem);
+      await this.menuService.sendWelcomeMenu(client, from);
+
+      sessionManager.resetState(from);
+    } catch (error) {
+      console.error('Erro ao processar feedback:', error);
+      await client.sendText(
+        from,
+        'Ocorreu um erro inesperado ao processar seu feedback. Por favor, tente novamente mais tarde.',
+      );
+      await this.menuService.sendWelcomeMenu(client, from);
+      sessionManager.resetState(from);
     }
-
-    mensagem += `Sua opinião é muito importante para nós!`;
-
-    await client.sendText(from, mensagem);
-    await this.menuService.sendWelcomeMenu(client, from);
-
-    sessionManager.resetState(from);
   }
 }

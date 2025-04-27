@@ -71,7 +71,7 @@ export class WhatsappService implements OnModuleInit {
 
     } catch (error) {
       console.error('Erro ao inicializar o cliente WhatsApp:', error);
-      await this.handleSessionError();
+      // await this.handleSessionError();
     }
   }
 
@@ -82,6 +82,7 @@ private setupSessionHandlers() {
       this.reconnectAttempts = 0;
       this.isSessionActive = true;
       console.log('Autenticado com sucesso!');
+      return;
     } else if (['CONFLICT', 'UNPAIRED', 'UNLAUNCHED'].includes(state)) {
       this.isSessionActive = false;
       this.handleSessionError();

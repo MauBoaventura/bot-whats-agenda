@@ -8,11 +8,12 @@ import {
   FlowFactory,
 } from './flows';
 import { HorarioFlow } from './flows/horario.flow';
-import { AgendamentoService } from '../agendamento/agendamento.service';
-import { FeedbackService } from '../feedback/feedback.service';
+import { FeedbackModule } from '../feedback/feedback.module'; // <-- importa o módulo
 import { MenuService } from './flows/menu.service';
+import { AgendamentoModule } from 'src/agendamento/agendamento.module';
 
 @Module({
+  imports: [FeedbackModule, AgendamentoModule],
   providers: [
     WhatsappService,
     FlowFactory,
@@ -20,8 +21,6 @@ import { MenuService } from './flows/menu.service';
     ConsultaFlow,
     FeedbackFlow,
     HorarioFlow,
-    AgendamentoService,
-    FeedbackService,
     MenuService,
   ],
   controllers: [WhatsappController],
