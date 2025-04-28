@@ -1,10 +1,6 @@
 // src/agendamento/entities/agendamento.entity.ts
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Servico } from '../../servicos/entities/servico.entity';
 
 @Entity()
 export class Agendamento {
@@ -18,9 +14,10 @@ export class Agendamento {
   @Column({ length: 100, nullable: true })
   clienteNome?: string; // Opcional (pode ser preenchido depois)
 
-  // Detalhes do Agendamento
-  @Column({ type: 'varchar', length: 50 })
-  servico: string; // Ex: "Corte de Cabelo", "Barba" (servicoEscolhido)
+  // Relacionamento com Servico
+  @ManyToOne(() => Servico, { eager: true }) // Carrega o serviço automaticamente
+  @JoinColumn({ name: 'servicoId' }) // Define o nome da coluna de chave estrangeira
+  servico: Servico;
 
   @Column({ type: 'date' })
   data: Date; // Data no formato YYYY-MM-DD (dataSelecionada.id)
@@ -38,6 +35,13 @@ export class Agendamento {
     default: 'pendente',
   })
   status: 'pendente' | 'confirmado' | 'cancelado' | 'concluido';
+
+  @Column({
+    type: 'enum',
+    enum: ['nao_pago', 'pago', 'em_processamento'],
+    default: 'nao_pago',
+  })
+  statusPagamento: 'nao_pago' | 'pago' | 'em_processamento'; // Status do pagamento
 
   @CreateDateColumn()
   criadoEm: Date; // Data/hora do registro

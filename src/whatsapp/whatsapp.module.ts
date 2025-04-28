@@ -10,7 +10,7 @@ import {
 import { HorarioFlow } from './flows/horario.flow';
 import { FeedbackModule } from '../feedback/feedback.module'; // <-- importa o módulo
 import { MenuService } from './flows/menu.service';
-import { AgendamentoModule } from 'src/agendamento/agendamento.module';
+import { AgendamentoModule } from '../agendamento/agendamento.module';
 
 @Module({
   imports: [FeedbackModule, AgendamentoModule],

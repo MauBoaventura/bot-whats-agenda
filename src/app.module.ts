@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ServicosModule } from './servicos/servicos.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { AgendaModule } from './agenda/agenda.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { FeedbackModule } from './feedback/feedback.module';
     ClientesModule,
     FeedbackModule,
     WhatsappModule,
+    AgendaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

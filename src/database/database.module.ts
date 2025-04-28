@@ -17,6 +17,7 @@ import { join } from 'path';
           database: config.get<string>('DB_NAME'),
           entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
           synchronize: true,
+          logging: config.get('TYPEORM_LOGGING') === 'true',
           dropSchema: config.get('TYPEORM_DROP_SCHEMA') === 'true',  // Alterado
         };
       },

@@ -1,23 +1,45 @@
 // src/agendamento/agendamento.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource, In, Not, Repository } from 'typeorm';
 import { Agendamento } from './entities/agendamento.entity';
+import { Servico } from '../servicos/entities/servico.entity';
 
 @Injectable()
 export class AgendamentoService {
   private agendamentoRepo: Repository<Agendamento>;
+  private servicoRepo: Repository<Servico>;
 
   constructor(private dataSource: DataSource) {
     this.agendamentoRepo = dataSource.getRepository(Agendamento);
+    this.servicoRepo = dataSource.getRepository(Servico);
   }
 
   async criarAgendamento(dados: {
     clienteTelefone: string;
-    servico: string;
+    servico: number; // ID do serviço
     data: Date;
     horario: string;
+    observacao?: string;
   }) {
-    const novoAgendamento = this.agendamentoRepo.create(dados);
+    // Buscar o serviço pelo ID
+    const servico = await this.servicoRepo.findOne({
+      where: { id: dados.servico },
+    });
+    if (!servico) {
+      throw new NotFoundException(
+        `Serviço com ID ${dados.servico} não encontrado`,
+      );
+    }
+
+    // Criar o agendamento com o serviço relacionado
+    const novoAgendamento = this.agendamentoRepo.create({
+      clienteTelefone: dados.clienteTelefone,
+      servico, // Relacionamento com a entidade Servico
+      data: dados.data,
+      horario: dados.horario,
+      observacao: dados.observacao,
+    });
+
     return await this.agendamentoRepo.save(novoAgendamento);
   }
   async buscarAgendamentosPorTelefone(telefone: string) {
@@ -32,6 +54,11 @@ export class AgendamentoService {
   async cancelarAgendamento(id: string): Promise<void> {
     await this.agendamentoRepo.update(id, { status: 'cancelado' });
   }
+
+  async obterServicos(): Promise<Servico[]> {
+    return this.servicoRepo.find({ where: { status: true } });
+  }
+  
   findAll(): Promise<Agendamento[]> {
     throw new Error('Method not implemented.');
   }

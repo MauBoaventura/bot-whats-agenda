@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { DataSource } from 'typeorm';
 import { Servico } from './servicos/entities/servico.entity';
 import { Cliente } from './clientes/entities/cliente.entity';
+import { Agendamento } from './agendamento/entities/agendamento.entity';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -11,6 +12,7 @@ async function bootstrap() {
 
   const servicoRepo = dataSource.getRepository(Servico);
   const clienteRepo = dataSource.getRepository(Cliente);
+  const agendamentoRepo = dataSource.getRepository(Agendamento);
 
   const servicos = [
     { nome: 'Corte Masculino', duracao: 30, preco: 30.0, categoria: 'Barbearia', status: true },
@@ -56,6 +58,24 @@ async function bootstrap() {
   await clienteRepo.save(clientes);
   console.log('Clientes inseridos com sucesso!');
 
+  const agendamentos = [
+    {
+      clienteTelefone: '558695441013@c.us',
+      clienteNome: clientes[0].nome,
+      servico: servicos[0], // Primeiro serviço da lista
+      dataHora: new Date(new Date().setHours(10, 0, 0)), // Hoje às 10:00
+      confirmado: true,
+    },
+    {
+      clienteTelefone: '558695441013@c.us',
+      clienteNome: clientes[1].nome,
+      servico: servicos[1], // Segundo serviço da lista
+      dataHora: new Date(new Date().setDate(new Date().getDate() + 1)), // Amanhã às 14:00
+      confirmado: false,
+    },
+  ];
+  await agendamentoRepo.save(agendamentos);
+  console.log('Agendamentos inseridos com sucesso!');
   await app.close();
 }
 

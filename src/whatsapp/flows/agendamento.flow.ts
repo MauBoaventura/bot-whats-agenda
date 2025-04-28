@@ -87,12 +87,15 @@ export class AgendamentoFlow {
     from: string,
     sessionManager: SessionManager,
   ) {
-    const servicos = [
-      { id: 'corte', title: 'Corte de Cabelo' },
-      { id: 'barba', title: 'Corte de Barba' },
-      { id: 'completo', title: 'Corte Completo (Cabelo + Barba)' },
-    ];
+  // Obtendo os serviços do banco de dados
+  const servicos = await this.agendamentoService.obterServicos();
 
+  if (!servicos || servicos.length === 0) {
+    await client.sendText(from, 'Nenhum serviço disponível no momento.');
+      await this.menuService.sendWelcomeMenu(client, from);
+      sessionManager.resetState(from);
+    return;
+  }
     await client.sendListMessage(from, {
       title: 'Escolha o serviço',
       description: 'Por favor, selecione o serviço desejado:',
@@ -101,8 +104,8 @@ export class AgendamentoFlow {
         {
           title: 'Serviços Disponíveis',
           rows: servicos.map((servico) => ({
-            rowId: servico.id,
-            title: servico.title,
+            rowId: servico.id.toString(),
+            title: servico.nome,
             description: '',
           })),
         },
@@ -136,6 +139,7 @@ export class AgendamentoFlow {
     }
 
     sessionManager.updateData(from, { servicoEscolhido });
+    sessionManager.updateData(from, { servicoEscolhidoNome: servicoValido.nome });
 
     const hoje = new Date();
     const opcoesData: { id: string; title: string; description: string }[] = [];
@@ -182,8 +186,8 @@ export class AgendamentoFlow {
     selectedRowId: string,
   ) {
     const sessionData = sessionManager.getData(from);
-    const { servicoEscolhido } = sessionData;
-
+    const { servicoEscolhido , servicoEscolhidoNome} = sessionData;
+    console.log('Serviço escolhido:', sessionData);
     if (!servicoEscolhido) {
       await client.sendText(from, 'Por favor, selecione um serviço primeiro.');
       sessionManager.setState(
@@ -264,7 +268,7 @@ export class AgendamentoFlow {
 
     await client.sendListMessage(from, {
       title: `Horários para ${dataFormatada}`,
-      description: `Escolha um horário disponível para ${servicoEscolhido}:`,
+      description: `Escolha um horário disponível para ${servicoEscolhidoNome}:`,
       buttonText: 'Horários',
       sections: [
         {
@@ -314,11 +318,11 @@ export class AgendamentoFlow {
 
     sessionManager.updateData(from, { horarioEscolhido });
 
-    const { servicoEscolhido, dataSelecionada } = dataAtual;
+    const { servicoEscolhidoNome, dataSelecionada } = dataAtual;
     const resumo = `
     *Resumo do Agendamento:*
 
-    *Serviço:* ${servicoEscolhido}
+    *Serviço:* ${servicoEscolhidoNome}
     *Data:* ${dataSelecionada.title}
     *Horário:* ${horarioEscolhido.title}
 
@@ -358,7 +362,7 @@ export class AgendamentoFlow {
       message.toLowerCase() === 'confirmar' ||
       message === '✅ confirmar'
     ) {
-      const { servicoEscolhido, dataSelecionada, horarioEscolhido } =
+      const { servicoEscolhido, servicoEscolhidoNome, dataSelecionada, horarioEscolhido } =
         sessionManager.getData(from);
 
       // Usando o AgendamentoService para salvar no banco de dados
@@ -372,7 +376,7 @@ export class AgendamentoFlow {
       await client.sendText(
         from,
         `Agendamento confirmado! ✅\n\n` +
-          `*Serviço:* ${servicoEscolhido}\n` +
+          `*Serviço:* ${servicoEscolhidoNome}\n` +
           `*Data:* ${dataSelecionada.title}\n` +
           `*Horário:* ${horarioEscolhido.title}\n\n` +
           `Obrigado por agendar conosco!`,
