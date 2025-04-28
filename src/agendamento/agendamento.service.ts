@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource, In, Not, Repository } from 'typeorm';
 import { Agendamento } from './entities/agendamento.entity';
 import { Servico } from '../servicos/entities/servico.entity';
+import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
 
 @Injectable()
 export class AgendamentoService {
@@ -62,8 +63,20 @@ export class AgendamentoService {
   findAll(): Promise<Agendamento[]> {
     throw new Error('Method not implemented.');
   }
-  create(body: Partial<Agendamento>) {
-    throw new Error('Method not implemented.');
+  async create(body: CreateAgendamentoDto) {
+    try {
+      console.log('body', body);
+      const novoAgendamento = this.agendamentoRepo.create({
+        ...body,
+        servico: { id: body.servico },
+        profissional: body.profissional ? { id: body.profissional } : undefined,
+      });
+  
+      return await this.agendamentoRepo.save(novoAgendamento);
+    } catch (error) {
+      console.error('Erro ao criar agendamento:', error);
+      throw error;
+    }
   }
   remove(id: number) {
     throw new Error('Method not implemented.');

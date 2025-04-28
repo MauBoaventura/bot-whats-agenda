@@ -1,6 +1,7 @@
 // src/agendamento/entities/agendamento.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Servico } from '../../servicos/entities/servico.entity';
+import { Profissional } from '../../profissional/entities/profissional.entity';
 
 @Entity()
 export class Agendamento {
@@ -18,6 +19,11 @@ export class Agendamento {
   @ManyToOne(() => Servico, { eager: true }) // Carrega o serviço automaticamente
   @JoinColumn({ name: 'servicoId' }) // Define o nome da coluna de chave estrangeira
   servico: Servico;
+
+  // Relacionamento com Profissional (opcional)
+  @ManyToOne(() => Profissional, { nullable: true, eager: true })
+  @JoinColumn({ name: 'profissionalId' })
+  profissional?: Profissional;
 
   @Column({ type: 'date' })
   data: Date; // Data no formato YYYY-MM-DD (dataSelecionada.id)

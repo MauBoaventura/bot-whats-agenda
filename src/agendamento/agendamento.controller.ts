@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { AgendamentoService } from './agendamento.service';
 import { Agendamento } from './entities/agendamento.entity';
+import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
 
 @Controller('agendamento')
 export class AgendamentoController {
@@ -21,7 +22,7 @@ export class AgendamentoController {
   }
 
   @Post()
-  create(@Body() body: Partial<Agendamento>) {
+  create(@Body() body: CreateAgendamentoDto) {
     return this.agendamentoService.create(body);
   }
 

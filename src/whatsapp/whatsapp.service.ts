@@ -146,6 +146,9 @@ private setupSessionHandlers() {
       if (state === SocketState.CONFLICT) {
         this.client.useHere().catch(console.error);
       }
+      if (state === 'CONFLICT' || state === 'UNLAUNCHED') {
+        this.client.useHere(); // Força a sessão para o seu cliente
+      }
     });
   }
 
@@ -197,4 +200,6 @@ private setupSessionHandlers() {
   public isActive(): boolean {
     return this.isSessionActive;
   }
+
+  
 }
