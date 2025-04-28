@@ -8,6 +8,7 @@ import { ServicosModule } from './servicos/servicos.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { AgendaModule } from './agenda/agenda.module';
+import { ProfissionalModule } from './profissional/profissional.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AgendaModule } from './agenda/agenda.module';
     FeedbackModule,
     WhatsappModule,
     AgendaModule,
+    ProfissionalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
