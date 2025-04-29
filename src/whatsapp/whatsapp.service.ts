@@ -47,14 +47,18 @@ export class WhatsappService implements OnModuleInit {
     try {
       this.client = await create({
         session: 'meu-bot',
+        folderNameToken: 'tokens',
         autoClose: 0, // Desativa o auto close automático
         puppeteerOptions: {
           // headless: false, // Mantém visível para depuração
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage'
-          ]
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--no-zygote',
+            '--single-process'
+          ],
         },
         catchQR: (base64Qrimg, asciiQR) => {
           this.qrCodeBase64 = base64Qrimg;
@@ -62,51 +66,50 @@ export class WhatsappService implements OnModuleInit {
           console.log('Novo QR Code disponível:', asciiQR);
           console.log('QR Code Base64:', base64Qrimg);
         },
-        waitForLogin: true // Espera até que o login seja concluído
+        waitForLogin: true, // Espera até que o login seja concluído
       });
 
       this.initializeListeners();
       this.setupSessionHandlers();
       this.isSessionActive = true;
-
     } catch (error) {
       console.error('Erro ao inicializar o cliente WhatsApp:', error);
       // await this.handleSessionError();
     }
   }
 
-private setupSessionHandlers() {
-  this.client.onStateChange((state) => {
-    console.log('Mudança de estado:', state);
-    if (state === 'CONNECTED') {
-      this.reconnectAttempts = 0;
-      this.isSessionActive = true;
-      console.log('Autenticado com sucesso!');
-      return;
-    } else if (['CONFLICT', 'UNPAIRED', 'UNLAUNCHED'].includes(state)) {
-      this.isSessionActive = false;
-      this.handleSessionError();
-    }
-  });
+  private setupSessionHandlers() {
+    this.client.onStateChange((state) => {
+      console.log('Mudança de estado:', state);
+      if (state === 'CONNECTED') {
+        this.reconnectAttempts = 0;
+        this.isSessionActive = true;
+        console.log('Autenticado com sucesso!');
+        return;
+      } else if (['CONFLICT', 'UNPAIRED', 'UNLAUNCHED'].includes(state)) {
+        this.isSessionActive = false;
+        this.handleSessionError();
+      }
+    });
 
-  this.client.onStreamChange((state) => {
-    console.log('Stream alterado:', state);
-    if (state === 'DISCONNECTED') {
-      this.isSessionActive = false;
-      this.handleSessionError();
-    }
-  });
-
-}
-
+    this.client.onStreamChange((state) => {
+      console.log('Stream alterado:', state);
+      if (state === 'DISCONNECTED') {
+        this.isSessionActive = false;
+        this.handleSessionError();
+      }
+    });
+  }
 
   private async handleSessionError() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      console.log(`Tentando reconectar (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-      
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      
+      console.log(
+        `Tentando reconectar (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`,
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
       try {
         if (this.client) {
           await this.client.close();
@@ -162,7 +165,10 @@ private setupSessionHandlers() {
 
   public getQrCodeImageBuffer(): Buffer | null {
     if (!this.qrCodeBase64) return null;
-    return Buffer.from(this.qrCodeBase64.replace(/^data:image\/png;base64,/, ''), 'base64');
+    return Buffer.from(
+      this.qrCodeBase64.replace(/^data:image\/png;base64,/, ''),
+      'base64',
+    );
   }
 
   public async logout() {
@@ -182,14 +188,14 @@ private setupSessionHandlers() {
       if (!this.client) {
         return Error('Cliente WhatsApp não inicializado');
       }
-      
+
       const status = await this.client.getConnectionState();
       console.log('Status do WhatsApp:', status);
       return {
         status,
         isAuthenticated: this.isSessionActive,
         qrGenerated: !!this.qrCodeBase64,
-        reconnectAttempts: this.reconnectAttempts
+        reconnectAttempts: this.reconnectAttempts,
       };
     } catch (error) {
       console.error('Erro interno:', error);
@@ -200,6 +206,4 @@ private setupSessionHandlers() {
   public isActive(): boolean {
     return this.isSessionActive;
   }
-
-  
 }

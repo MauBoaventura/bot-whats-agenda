@@ -15,7 +15,7 @@ import { ProfissionalModule } from './profissional/profissional.module';
     // Configuração do módulo de variáveis de ambiente (deve vir primeiro)
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: process.env.NODE_ENV === 'production' ? '../.env' : '.env',
     }),
     DatabaseModule,
     ServicosModule,

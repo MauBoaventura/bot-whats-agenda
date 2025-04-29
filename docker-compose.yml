@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: bot-whatsapp-agenda
+    build: .
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    command: pnpm run start:prod
+    # removemos o bind-mount do código-fonte
+    # montamos apenas o tokens numa named volume
+    volumes:
+      - tokens-data:/app/tokens
+
+volumes:
+  tokens-data:
+    driver: local

@@ -76,7 +76,7 @@ export class ConsultaFlow {
       id: ag.id.toString(),
       data: format(ag.data, 'dd/MM/yyyy'),
       horario: ag.horario,
-      servico: ag.servico,
+      servico: ag.servico.nome,
     }));
 
     if (agendamentosFormatados.length === 0) {
