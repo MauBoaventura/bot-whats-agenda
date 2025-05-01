@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import * as fs from 'fs';
+import axios from 'axios';
+import * as FormData from 'form-data';
 
 // Extending the Message type to include listResponse
 declare module '@wppconnect-team/wppconnect' {
@@ -24,6 +27,7 @@ import { SessionManager } from './session.manager';
 
 import { FlowFactory } from './flows';
 import { MenuService } from './flows/menu.service';
+import { saveAudioFromBase64 } from 'src/utils/converteParaAudio';
 
 @Injectable()
 export class WhatsappService implements OnModuleInit {
@@ -57,7 +61,7 @@ export class WhatsappService implements OnModuleInit {
             '--disable-dev-shm-usage',
             '--disable-gpu',
             '--no-zygote',
-            '--single-process'
+            '--single-process',
           ],
         },
         catchQR: (base64Qrimg, asciiQR) => {
@@ -80,11 +84,9 @@ export class WhatsappService implements OnModuleInit {
 
   private setupSessionHandlers() {
     this.client.onStateChange((state) => {
-      console.log('Mudança de estado:', state);
       if (state === 'CONNECTED') {
         this.reconnectAttempts = 0;
         this.isSessionActive = true;
-        console.log('Autenticado com sucesso!');
         return;
       } else if (['CONFLICT', 'UNPAIRED', 'UNLAUNCHED'].includes(state)) {
         this.isSessionActive = false;
@@ -93,7 +95,6 @@ export class WhatsappService implements OnModuleInit {
     });
 
     this.client.onStreamChange((state) => {
-      console.log('Stream alterado:', state);
       if (state === 'DISCONNECTED') {
         this.isSessionActive = false;
         this.handleSessionError();
@@ -126,8 +127,13 @@ export class WhatsappService implements OnModuleInit {
   private initializeListeners() {
     this.client.onMessage(async (message) => {
       const { from, body, isGroupMsg } = message;
-      const selectedRowId =
-        message.listResponse?.singleSelectReply.selectedRowId || '';
+
+      if (message.type === 'ptt') {
+        await this.processAudioMessage(message);
+        return;
+      }
+
+      const selectedRowId = message.listResponse?.singleSelectReply.selectedRowId || '';
       if (!body || isGroupMsg) return;
 
       const trimmed = body.trim();
@@ -145,7 +151,6 @@ export class WhatsappService implements OnModuleInit {
     });
 
     this.client.onStateChange((state) => {
-      console.log('Mudança de estado do socket:', state);
       if (state === SocketState.CONFLICT) {
         this.client.useHere().catch(console.error);
       }
@@ -176,7 +181,6 @@ export class WhatsappService implements OnModuleInit {
       if (this.client) {
         await this.client.logout();
         this.isSessionActive = false;
-        console.log('Deslogado com sucesso');
       }
     } catch (error) {
       console.error('Erro ao deslogar:', error);
@@ -190,7 +194,6 @@ export class WhatsappService implements OnModuleInit {
       }
 
       const status = await this.client.getConnectionState();
-      console.log('Status do WhatsApp:', status);
       return {
         status,
         isAuthenticated: this.isSessionActive,
@@ -205,5 +208,42 @@ export class WhatsappService implements OnModuleInit {
 
   public isActive(): boolean {
     return this.isSessionActive;
+  }
+
+  private async processAudioMessage(message: any) {
+    try {
+      const mediaBase64 = await this.client.downloadMedia(message);
+      if (mediaBase64) {
+        const savePathOgg = await saveAudioFromBase64(mediaBase64, String(message.timestamp));
+
+        // Faz a requisição para o serviço de transcrição
+        const formData = new FormData();
+        formData.append('audio_file', fs.createReadStream(savePathOgg), {
+          filename: 'oggFilename',
+          contentType: 'audio/ogg',
+        });
+
+        const apiUrl = process.env.TRANSCRIPTION_API_URL;
+
+        const response = await axios.post(
+          `${apiUrl}/asr?encode=true&task=transcribe&language=pt&output=txt`,
+          formData,
+          {
+            headers: {
+              ...formData.getHeaders(),
+            },
+          },
+        );
+
+        await this.client.sendText(message.from, response.data);
+
+        // Remove o arquivo de áudio após o envio
+        fs.unlinkSync(savePathOgg);
+      } else {
+        console.warn('⚠️ Não foi possível baixar o áudio');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao processar o áudio:', error);
+    }
   }
 }

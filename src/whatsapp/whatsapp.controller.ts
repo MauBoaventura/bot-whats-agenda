@@ -54,7 +54,7 @@ export class WhatsappController {
   @Get('env')
   async getEnv(@Res() res: Response) {	
     try {
-      console.log('Configuração do banco de dados:', {
+    return{
         host: process.env.DB_HOST,
         port: Number(process.env.DB_PORT),
         username: process.env.DB_USER,
@@ -63,7 +63,7 @@ export class WhatsappController {
         logging: process.env.TYPEORM_LOGGING === 'true',
         dropSchema: process.env.TYPEORM_DROP_SCHEMA === 'true',
         config: process.env.PORT,
-      });
+      };
     } catch (error) {
       console.error('Erro ao obter status:', error);
       return res.status(500).json({ error: 'Erro ao obter status' });

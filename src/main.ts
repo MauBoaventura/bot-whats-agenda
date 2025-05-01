@@ -1,6 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { NgrokInterceptor } from './interceptors/ngrok.interceptor';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +18,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*', // ou especifique os domínios
   });
+  app.useGlobalInterceptors(new NgrokInterceptor()); // Aplica a todas as rotas
 
   // const isDev = process.env.NODE_ENV === 'development';
 

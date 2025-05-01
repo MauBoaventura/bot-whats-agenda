@@ -187,7 +187,6 @@ export class AgendamentoFlow {
   ) {
     const sessionData = sessionManager.getData(from);
     const { servicoEscolhido , servicoEscolhidoNome} = sessionData;
-    console.log('Serviço escolhido:', sessionData);
     if (!servicoEscolhido) {
       await client.sendText(from, 'Por favor, selecione um serviço primeiro.');
       sessionManager.setState(

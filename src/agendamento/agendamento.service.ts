@@ -65,7 +65,6 @@ export class AgendamentoService {
   }
   async create(body: CreateAgendamentoDto) {
     try {
-      console.log('body', body);
       const novoAgendamento = this.agendamentoRepo.create({
         ...body,
         servico: { id: body.servico },

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@nestjs/axios':
+        specifier: ^4.0.0
+        version: 4.0.0(@nestjs/common@11.0.16(class-transformer@0.5.1)(class-validator@0.14.1)(file-type@19.6.0)(reflect-metadata@0.2.2)(rxjs@7.8.2))(axios@1.8.4)(rxjs@7.8.2)
       '@nestjs/common':
         specifier: ^11.0.16
         version: 11.0.16(class-transformer@0.5.1)(class-validator@0.14.1)(file-type@19.6.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -44,6 +47,12 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.5.0
+      form-data:
+        specifier: ^4.0.2
+        version: 4.0.2
       mysql2:
         specifier: ^3.14.0
         version: 3.14.0
@@ -81,6 +90,9 @@ importers:
       '@types/express':
         specifier: ^5.0.1
         version: 5.0.1
+      '@types/fluent-ffmpeg':
+        specifier: ^2.1.27
+        version: 2.1.27
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
@@ -839,6 +851,13 @@ packages:
     resolution: {integrity: sha512-zM0mVWSXE0a0h9aKACLwKmD6nHcRiKrPpCfvaKqG1CqDEyjEawId0ocXxVzPMCAm6kkWr2P025msfxXEnt8UGQ==}
     engines: {node: '>= 10'}
 
+  '@nestjs/axios@4.0.0':
+    resolution: {integrity: sha512-1cB+Jyltu/uUPNQrpUimRHEQHrnQrpLzVj6dU3dgn6iDDDdahr10TgHFGTmw5VuJ9GzKZsCLDL78VSwJAs/9JQ==}
+    peerDependencies:
+      '@nestjs/common': ^10.0.0 || ^11.0.0
+      axios: ^1.3.1
+      rxjs: ^7.0.0
+
   '@nestjs/cli@11.0.6':
     resolution: {integrity: sha512-Xco8pTdWHCpTXPTYMkUGAE+C7JXvAv38oVUaQeL81o7UOAi39w8p456r+IjONN/7ekjzakWnqepDzuTtH5Xk5w==}
     engines: {node: '>= 20.11'}
@@ -1139,6 +1158,9 @@ packages:
 
   '@types/express@5.0.1':
     resolution: {integrity: sha512-UZUw8vjpWFXuDnjFTh7/5c2TWDlQqeXHi6hcN7F2XSVT5P+WmUnnbFS3KA6Jnc6IsEqI2qCVu2bK0R0J4A8ZQQ==}
+
+  '@types/fluent-ffmpeg@2.1.27':
+    resolution: {integrity: sha512-QiDWjihpUhriISNoBi2hJBRUUmoj/BMTYcfz+F+ZM9hHWBYABFAE6hjP/TbCZC0GWwlpa3FzvHH9RzFeRusZ7A==}
 
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
@@ -5134,6 +5156,12 @@ snapshots:
       '@napi-rs/nice-win32-x64-msvc': 1.0.1
     optional: true
 
+  '@nestjs/axios@4.0.0(@nestjs/common@11.0.16(class-transformer@0.5.1)(class-validator@0.14.1)(file-type@19.6.0)(reflect-metadata@0.2.2)(rxjs@7.8.2))(axios@1.8.4)(rxjs@7.8.2)':
+    dependencies:
+      '@nestjs/common': 11.0.16(class-transformer@0.5.1)(class-validator@0.14.1)(file-type@19.6.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      axios: 1.8.4
+      rxjs: 7.8.2
+
   '@nestjs/cli@11.0.6(@swc/cli@0.6.0(@swc/core@1.11.20)(chokidar@4.0.3))(@swc/core@1.11.20)(@types/node@22.14.0)':
     dependencies:
       '@angular-devkit/core': 19.2.6(chokidar@4.0.3)
@@ -5456,6 +5484,10 @@ snapshots:
       '@types/body-parser': 1.19.5
       '@types/express-serve-static-core': 5.0.6
       '@types/serve-static': 1.15.7
+
+  '@types/fluent-ffmpeg@2.1.27':
+    dependencies:
+      '@types/node': 22.14.0
 
   '@types/graceful-fs@4.1.9':
     dependencies:
